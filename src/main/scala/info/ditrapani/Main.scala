@@ -1,17 +1,33 @@
 package info.ditrapani
 
-import zio.ZIO
-import zio.console.{putStrLn, getStrLn, Console}
+import zio.config.magnolia.DeriveConfigDescriptor.descriptor
+import com.typesafe.config.ConfigFactory
+import zio.{ExitCode, Has, Layer, URIO, ZEnv, ZIO}
+import zio.config.typesafe.TypesafeConfig
+import zio.console.{Console, putStrLn}
+import zio.config.{ConfigDescriptor, ReadError, getConfig}
 
-object MyApp extends zio.App {
+import java.net.URI
 
-  def run(args: List[String]) =
-    myAppLogic.exitCode
+object Main extends zio.App {
+  override def run(args: List[String]): URIO[ZEnv, ExitCode] =
+    app.provideCustomLayer(configLayer).exitCode
 
-  val myAppLogic: ZIO[Console, Throwable, Unit] =
+  val app: ZIO[Console with Has[Config], Throwable, Unit] =
     for {
-      _ <- putStrLn("Hello! What is your name?")
-      name <- getStrLn
-      _ <- putStrLn(s"Hello, ${name}, welcome to ZIO!")
+      config <- getConfig[Config]
+      _ <- putStrLn(config.toString())
     } yield ()
+
+  val configLayer: Layer[ReadError[String], Has[Config]] = {
+    val configDescriptor: ConfigDescriptor[Config] = descriptor[Config]
+    TypesafeConfig.fromTypesafeConfig[Config](
+      ConfigFactory.defaultApplication(),
+      configDescriptor,
+    )
+  }
 }
+
+final case class Config(database: Database, upstreamApi: UpstreamApi)
+final case class Database(host: URI, port: Int, database: String, user: String, password: String)
+final case class UpstreamApi(host: URI, port: Int)

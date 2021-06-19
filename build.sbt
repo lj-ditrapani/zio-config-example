@@ -21,6 +21,7 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % dependencies.zioV,
   "dev.zio" %% "zio-config" % dependencies.zioConfigV,
   "dev.zio" %% "zio-config-magnolia" % dependencies.zioConfigV,
+  "dev.zio" %% "zio-config-typesafe" % dependencies.zioConfigV,
 )
 
 wartremoverWarnings ++= Warts.allBut(
@@ -29,6 +30,9 @@ wartremoverWarnings ++= Warts.allBut(
   Wart.Throw,
   Wart.AsInstanceOf,
   Wart.StringPlusAny,
+  Wart.ToString,
+  Wart.Nothing,
+  Wart.Any,
 )
 
 lazy val dependencies =
