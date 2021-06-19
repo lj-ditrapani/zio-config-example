@@ -40,3 +40,5 @@ lazy val dependencies =
     val zioV = "1.0.9"
     val zioConfigV = "1.0.6"
   }
+
+enablePlugins(JavaAppPackaging)
